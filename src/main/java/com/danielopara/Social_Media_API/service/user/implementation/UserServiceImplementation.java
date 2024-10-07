@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -29,6 +30,14 @@ public class UserServiceImplementation implements UserService {
     @Override
     public BaseResponse createUser(CreateUserDto createUserDto) {
         try{
+            String validationError = validateUserInput(createUserDto);
+            if (validationError != null) {
+                return new BaseResponse(
+                        HttpServletResponse.SC_BAD_REQUEST,
+                        validationError,
+                        null
+                );
+            }
             Pattern pattern = Pattern.compile(emailRegex);
             if(createUserDto.getEmail() == null || !pattern.matcher(createUserDto.getEmail()).matches()){
                 return new BaseResponse(
@@ -59,7 +68,7 @@ public class UserServiceImplementation implements UserService {
             UserModel user = new UserModel();
             user.setFirstName(createUserDto.getFirstName());
             user.setLastName(createUserDto.getLastName());
-            user.setEmail(createUserDto.getEmail());
+            user.setEmail(createUserDto.getEmail().toLowerCase());
             user.setOtherNames(createUserDto.getOtherNames());
             user.setPhoneNumber(createUserDto.getPhoneNumber());
             user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
@@ -68,7 +77,7 @@ public class UserServiceImplementation implements UserService {
             Map<String, Object> userResponse = new HashMap<>();
             userResponse.put("firstName", createUserDto.getFirstName());
             userResponse.put("lastName", createUserDto.getLastName());
-            userResponse.put("email", createUserDto.getEmail());
+            userResponse.put("email", createUserDto.getEmail().toLowerCase());
 
             return new BaseResponse(
                     HttpServletResponse.SC_CREATED,
@@ -77,6 +86,44 @@ public class UserServiceImplementation implements UserService {
             );
 
         } catch(Exception e){
+            return new BaseResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error", e.getMessage());
+        }
+    }
+
+
+    private String validateUserInput(CreateUserDto createUserDto) {
+        if (isEmpty(createUserDto.getFirstName()) || isEmpty(createUserDto.getLastName()) ||
+                isEmpty(createUserDto.getEmail()) || isEmpty(createUserDto.getPassword()) ||
+                isEmpty(createUserDto.getPhoneNumber())) {
+            return "Error, field cannot be empty";
+        }
+
+        if (!createUserDto.getEmail().matches(emailRegex)) {
+            return "Invalid email format";
+        }
+
+        if (!createUserDto.getPhoneNumber().matches("\\d{11}")) {
+            return "Phone number must be 11 digits";
+        }
+
+        return null;
+    }
+    private boolean isEmpty(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    @Override
+    public BaseResponse getUsers() {
+        try{
+            List<UserModel> allUsers = userRepository.findAll();
+
+            return new BaseResponse(
+                    HttpServletResponse.SC_OK,
+                    "all users",
+                    allUsers
+            );
+
+        } catch (Exception e){
             return new BaseResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error", e.getMessage());
         }
     }
