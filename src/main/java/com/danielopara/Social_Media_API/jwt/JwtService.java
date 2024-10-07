@@ -56,12 +56,12 @@ public class JwtService {
         return claimsFunction.apply(claims);
     }
 
-    private String generateToken(Map<String, Object> getDetails, String username, long expirationTime){
+    private String generateToken(Map<String, Object> getDetails, String username){
         return Jwts.builder()
                 .setClaims(getDetails)
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .setExpiration(new Date(System.currentTimeMillis() + (long) 86400000))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -95,7 +95,7 @@ public class JwtService {
         claims.put("firstName", user.get().getFirstName());
         claims.put("lastName", user.get().getLastName());
 
-        return generateToken(claims, userDetails.getUsername(), 24 * 60 * 60 * 1000);
+        return generateToken(claims, userDetails.getUsername());
     }
 
     public String generateAccessTokenByUsername(String username){
@@ -109,6 +109,6 @@ public class JwtService {
         claims.put("firstName", user.get().getFirstName());
         claims.put("lastName", user.get().getLastName());
 
-        return generateToken(claims, username, 24 * 60 * 60 * 1000);
+        return generateToken(claims, username);
     }
 }
