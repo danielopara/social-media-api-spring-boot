@@ -2,6 +2,7 @@ package com.danielopara.Social_Media_API.service.user.implementation;
 
 import com.danielopara.Social_Media_API.Repository.UserRepository;
 import com.danielopara.Social_Media_API.dto.CreateUserDto;
+import com.danielopara.Social_Media_API.dto.UserResponseDto;
 import com.danielopara.Social_Media_API.models.UserModel;
 import com.danielopara.Social_Media_API.response.BaseResponse;
 import com.danielopara.Social_Media_API.service.user.UserService;
@@ -117,10 +118,20 @@ public class UserServiceImplementation implements UserService {
         try{
             List<UserModel> allUsers = userRepository.findAll();
 
+            List<UserResponseDto> userResponse = allUsers.stream()
+                    .map(user -> new UserResponseDto(
+                            user.getFirstName(),
+                            user.getLastName(),
+                            user.getOtherNames(),
+                            user.getEmail(),
+                            user.getPhoneNumber()
+                    ))
+                    .toList();
+
             return new BaseResponse(
                     HttpServletResponse.SC_OK,
                     "all users",
-                    allUsers
+                    userResponse
             );
 
         } catch (Exception e){
