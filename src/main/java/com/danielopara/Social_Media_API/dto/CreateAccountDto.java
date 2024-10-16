@@ -10,7 +10,4 @@ import lombok.NoArgsConstructor;
 public class CreateAccountDto {
     private String username;
     private String displayName;
-    private String email;
-    private String followers;
-    private String following;
 }
