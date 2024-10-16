@@ -4,5 +4,5 @@ import com.danielopara.Social_Media_API.dto.CreateAccountDto;
 import com.danielopara.Social_Media_API.response.BaseResponse;
 
 public interface AccountCreation {
-    BaseResponse account(CreateAccountDto accountDto);
+    BaseResponse createAccount(String email, CreateAccountDto accountDto);
 }
