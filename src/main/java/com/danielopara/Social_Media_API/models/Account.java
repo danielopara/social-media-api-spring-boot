@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -24,7 +27,9 @@ public class Account {
 
     private String username;
 
-    private Long followers;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "following", cascade = CascadeType.ALL)
+    private Set<Follow> followers = new HashSet<>();
 
-    private Long following;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "follower", cascade = CascadeType.ALL)
+    private Set<Follow> following;
 }
