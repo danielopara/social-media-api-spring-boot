@@ -1,10 +1,12 @@
 package com.danielopara.Social_Media_API.service.account.implementation;
 
 import com.danielopara.Social_Media_API.Repository.AccountRepository;
+import com.danielopara.Social_Media_API.Repository.FollowRepository;
 import com.danielopara.Social_Media_API.Repository.UserRepository;
 import com.danielopara.Social_Media_API.dto.AccountDTO;
 import com.danielopara.Social_Media_API.dto.CreateAccountDto;
 import com.danielopara.Social_Media_API.models.Account;
+import com.danielopara.Social_Media_API.models.Follow;
 import com.danielopara.Social_Media_API.models.UserModel;
 import com.danielopara.Social_Media_API.response.BaseResponse;
 import com.danielopara.Social_Media_API.service.account.AccountInterface;
@@ -12,9 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -22,6 +22,7 @@ import java.util.Optional;
 public class AccountService implements AccountInterface {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
     @Override
     public BaseResponse createAccount(String email, CreateAccountDto accountDto) {
         try{
@@ -78,11 +79,6 @@ public class AccountService implements AccountInterface {
             accountDTO.setFollowers((long) account.getFollowers().size());
             accountDTO.setFollowing((long) account.getFollowing().size());
 
-//            Map<String, Object> accountDetails = new HashMap<>();
-//            accountDetails.put("displayName", account.getDisplayName());
-//            accountDetails.put("username", account.getUsername());
-//            accountDetails.put("followers", account.getFollowers().size());
-//            accountDetails.put("following", account.getFollowing().size());
 
             return new BaseResponse(HttpServletResponse.SC_OK,
                     "User found",
@@ -97,6 +93,46 @@ public class AccountService implements AccountInterface {
 
     @Override
     public BaseResponse getAccountByUsername(String username) {
-        return null;
+        try{
+            Optional<Account> accountUsername = accountRepository.findByUsername(username);
+            if(accountUsername.isEmpty()){
+                return new BaseResponse(HttpServletResponse.SC_BAD_REQUEST,
+                        "User not found",
+                        null);
+            }
+
+            Account account = accountUsername.get();
+
+            AccountDTO accountDTO = new AccountDTO();
+            accountDTO.setDisplayName(account.getDisplayName());
+            accountDTO.setUsername(account.getUsername());
+            accountDTO.setFollowers((long) account.getFollowers().size());
+            accountDTO.setFollowing((long) account.getFollowing().size());
+
+
+            return new BaseResponse(HttpServletResponse.SC_OK,
+                    "User found",
+                    accountDTO);
+        }catch (Exception e){
+            return new BaseResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Internal Server Error",
+                    e.getMessage());
+        }
+    }
+
+    @Override
+    public void followAccount(String email, Long accountId) {
+        Account follower = accountRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("account not found"));
+        Account following = accountRepository.findById(accountId).orElseThrow(()->new RuntimeException("account not found"));
+
+        Follow follow = new Follow();
+
+        follow.setFollower(follower);
+        follow.setFollowing(following);
+
+        follower.getFollowing().add(follow);
+        following.getFollowers().add(follow);
+
+        followRepository.save(follow);
     }
 }
