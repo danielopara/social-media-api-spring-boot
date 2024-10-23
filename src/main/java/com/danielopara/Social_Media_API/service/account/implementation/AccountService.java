@@ -13,8 +13,10 @@ import com.danielopara.Social_Media_API.service.account.AccountInterface;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -125,6 +127,10 @@ public class AccountService implements AccountInterface {
         Account follower = accountRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("account not found"));
         Account following = accountRepository.findById(accountId).orElseThrow(()->new RuntimeException("account not found"));
 
+        if(Objects.equals(follower.getId(), following.getId())){
+            throw new RuntimeException("you cannot follow yourself");
+        }
+
         Follow follow = new Follow();
 
         follow.setFollower(follower);
@@ -134,5 +140,50 @@ public class AccountService implements AccountInterface {
         following.getFollowers().add(follow);
 
         followRepository.save(follow);
+
+        accountRepository.save(follower);
+        accountRepository.save(following);
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse unfollowAccount(String email, Long accountId) {
+        try{
+           Account follower = accountRepository.findByEmail(email).orElseThrow(()->new RuntimeException("account not found"));
+           Account following = accountRepository.findById(accountId).orElseThrow(()-> new RuntimeException("account not found"));
+
+           if(Objects.equals(follower.getId(), following.getId())){
+               throw new RuntimeException("error, users are the same");
+           }
+            Optional<Follow> followOptional = followRepository.findByFollowerAndFollowing(follower, following);
+           if(followOptional.isEmpty()){
+               throw new RuntimeException("does not exist");
+           }
+
+//           followRepository.deleteByFollowerAndFollowing(follower, following);
+//
+            Follow follow = followOptional.get();
+            followRepository.deleteById(follow.getId());
+
+            follower.getFollowing().remove(follow);
+            following.getFollowers().remove(follow);
+
+            followRepository.delete(follow);
+
+            accountRepository.save(follower);
+            accountRepository.save(following);
+
+           return new BaseResponse(
+                   HttpServletResponse.SC_OK,
+                   "unfollowed",
+                   null
+           );
+        }catch (Exception e){
+            return new BaseResponse(
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Internal Server Error",
+                    e.getMessage()
+            );
+        }
     }
 }
