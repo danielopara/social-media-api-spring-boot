@@ -39,4 +39,40 @@ public class AccountController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/get-account-byUsername/{username}")
+    ResponseEntity<?> getAccountByUsername(@PathVariable String username){
+        BaseResponse response = accountService.getAccountByUsername(username);
+        if(response.getStatusCode() == HttpServletResponse.SC_OK){
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/follow")
+    ResponseEntity<BaseResponse> followAccount(@AuthenticationPrincipal UserDetails currentUser, @RequestBody Long accountId){
+        try{
+            String accountEmail = currentUser.getUsername();
+
+            accountService.followAccount(accountEmail, accountId);
+            return ResponseEntity.ok(new BaseResponse(HttpServletResponse.SC_OK,
+                    "followed", null));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                    .body(new BaseResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                            "Internal Server Error",
+                            e.getMessage()));
+        }
+    }
+
+    @PostMapping("/unfollow")
+    ResponseEntity<?> unfollow(@AuthenticationPrincipal UserDetails currentUser, @RequestBody Long accountId){
+        BaseResponse response = accountService.unfollowAccount(currentUser.getUsername(), accountId);
+        if(response.getStatusCode() == HttpServletResponse.SC_OK){
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getStatusCode()));
+        }
+    }
 }
