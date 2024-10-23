@@ -65,4 +65,14 @@ public class AccountController {
                             e.getMessage()));
         }
     }
+
+    @PostMapping("/unfollow")
+    ResponseEntity<?> unfollow(@AuthenticationPrincipal UserDetails currentUser, @RequestBody Long accountId){
+        BaseResponse response = accountService.unfollowAccount(currentUser.getUsername(), accountId);
+        if(response.getStatusCode() == HttpServletResponse.SC_OK){
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getStatusCode()));
+        }
+    }
 }
