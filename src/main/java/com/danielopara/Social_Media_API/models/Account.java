@@ -31,5 +31,5 @@ public class Account {
     private Set<Follow> followers = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "follower", cascade = CascadeType.ALL)
-    private Set<Follow> following;
+    private Set<Follow> following = new HashSet<>();
 }
