@@ -22,8 +22,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         String requestURI = request.getRequestURI();
 
 
-        Map<String, String > responseBody = new HashMap<>();
-        responseBody.put("status", String.valueOf(HttpStatus.FORBIDDEN.value()));
+        Map<String, Object > responseBody = new HashMap<>();
+        responseBody.put("status", (HttpStatus.FORBIDDEN.value()));
         responseBody.put("error", "Unauthorized");
         responseBody.put("message", authException.getMessage());
         responseBody.put("url", requestURI);

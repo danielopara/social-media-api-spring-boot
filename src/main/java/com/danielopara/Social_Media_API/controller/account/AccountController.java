@@ -75,4 +75,34 @@ public class AccountController {
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getStatusCode()));
         }
     }
+
+    @GetMapping("/getFollowing")
+    ResponseEntity<?> getFollowing(@AuthenticationPrincipal UserDetails currentUser){
+        BaseResponse response = accountService.listFollowingAccountByAccountId(currentUser.getUsername());
+        if(response.getStatusCode() == HttpServletResponse.SC_OK){
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/getFollowers")
+    ResponseEntity<?> getFollowers(@AuthenticationPrincipal UserDetails currentUser){
+        BaseResponse response = accountService.listFollowerAccountByAccountEmail(currentUser.getUsername());
+        if(response.getStatusCode() == HttpServletResponse.SC_OK){
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/")
+    ResponseEntity<?> getAllAccounts(){
+        BaseResponse response = accountService.allAccounts();
+        if(response.getStatusCode() == HttpServletResponse.SC_OK){
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getStatusCode()));
+        }
+    }
 }

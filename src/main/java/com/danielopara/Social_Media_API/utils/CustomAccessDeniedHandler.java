@@ -22,8 +22,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         String requestURI = request.getRequestURI();
 
 
-        Map<String, String > responseBody = new HashMap<>();
-        responseBody.put("status", String.valueOf(HttpStatus.FORBIDDEN.value()));
+        Map<String, Object > responseBody = new HashMap<>();
+        responseBody.put("status", HttpStatus.FORBIDDEN.value());
         responseBody.put("message", accessDeniedException.getMessage());
         responseBody.put("url", requestURI);
         responseBody.put("path", request.getServletPath());
