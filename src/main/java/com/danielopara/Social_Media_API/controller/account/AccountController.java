@@ -47,36 +47,7 @@ public class AccountController {
         return responseHandlers.handleResponse(response);
     }
 
-    @Operation(summary = "Follow an account", description = "Allows the authenticated user to follow another account.")
-    @PostMapping("/accounts/follow")
-    ResponseEntity<BaseResponse> followAccount(@AuthenticationPrincipal UserDetails currentUser, @RequestBody Long accountId){
-        try{
-            String accountEmail = currentUser.getUsername();
 
-            accountService.followAccount(accountEmail, accountId);
-            return ResponseEntity.ok(new BaseResponse(HttpServletResponse.SC_OK,
-                    "followed", null));
-        } catch (Exception e){
-            return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-                    .body(new BaseResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                            "Internal Server Error",
-                            e.getMessage()));
-        }
-    }
-
-    @Operation(summary = "Unfollow an account", description = "Allows the authenticated user to unfollow an account.")
-    @PostMapping("/accounts/unfollow")
-    ResponseEntity<?> unfollow(@AuthenticationPrincipal UserDetails currentUser, @RequestBody Long accountId){
-        BaseResponse response = accountService.unfollowAccount(currentUser.getUsername(), accountId);
-        return responseHandlers.handleResponse(response);
-    }
-
-    @Operation(summary = "Get following list", description = "Fetches a list of accounts followed by the authenticated user.")
-    @GetMapping("/getFollowing")
-    ResponseEntity<?> getFollowing(@AuthenticationPrincipal UserDetails currentUser){
-        BaseResponse response = accountService.listFollowingAccountByAccountId(currentUser.getUsername());
-        return responseHandlers.handleResponse(response);
-    }
 
     @Operation(summary = "Get followers list", description = "Fetches a list of followers for the authenticated user.")
     @GetMapping("/getFollowers")
