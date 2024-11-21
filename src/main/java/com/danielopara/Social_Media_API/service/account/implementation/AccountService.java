@@ -23,6 +23,7 @@ public class AccountService implements AccountInterface {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final BaseResponse response;
 
     private static final String ACCOUNT_NOT_FOUND = "Account not found";
     private static final String INTERNAL_ERROR = "Internal Server Error";
@@ -112,7 +113,7 @@ public class AccountService implements AccountInterface {
             }
 
 
-            return BaseResponse.createSuccessResponse("success", userAccount);
+            return response.createSuccessResponse("success", userAccount);
         } catch (Exception e){
             return createErrorResponse(e);
         }
@@ -165,7 +166,7 @@ public class AccountService implements AccountInterface {
             accountRepository.save(follower);
             accountRepository.save(following);
 
-            return BaseResponse.createSuccessResponse("unfollowed", null);
+            return response.createSuccessResponse("unfollowed", null);
         }catch (Exception e){
             return createErrorResponse(e);
         }
@@ -192,15 +193,15 @@ public class AccountService implements AccountInterface {
                 following.add(followerDetails);
             }
 
-            return BaseResponse.createSuccessResponse("Success", following);
+            return response.createSuccessResponse("Success", following);
 
         } catch (NullPointerException ex) {
             // Handle specific NullPointerExceptions if they occur (e.g., accessing null fields)
-            return BaseResponse.createErrorResponse("Null Pointer Exception: " + ex.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return response.createErrorResponse("Null Pointer Exception: " + ex.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (Exception ex) {
             // Log and handle general exceptions
             ex.printStackTrace();  // Log the full stack trace for debugging purposes
-            return BaseResponse.createErrorResponse("Internal Server Error: " + ex.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return response.createErrorResponse("Internal Server Error: " + ex.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -221,7 +222,7 @@ public class AccountService implements AccountInterface {
                 followers.add(followingDetails);
             }
 
-            return BaseResponse.createSuccessResponse("success", followers);
+            return response.createSuccessResponse("success", followers);
 
         } catch (Exception e){
             return createErrorResponse(e);
@@ -256,7 +257,7 @@ public class AccountService implements AccountInterface {
     }
 
     private BaseResponse createErrorResponse(Exception e){
-        return BaseResponse.createErrorResponse(INTERNAL_ERROR, e.getMessage());
+        return response.createErrorResponse(INTERNAL_ERROR, e.getMessage());
     }
 
 
