@@ -6,15 +6,14 @@ import com.danielopara.Social_Media_API.service.user.implementation.UserServiceI
 import com.danielopara.Social_Media_API.utils.ResponseHandlers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User Management", description = "Managing user endpoints")
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/social")
 @RequiredArgsConstructor
 public class UserController {
     private final UserServiceImplementation userService;
