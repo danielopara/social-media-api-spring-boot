@@ -17,11 +17,11 @@ public class BaseResponse {
     private Object data;
 
 
-    public static BaseResponse createSuccessResponse(String message, Object data ){
+    public BaseResponse createSuccessResponse(String message, Object data ){
         return new BaseResponse(HttpServletResponse.SC_OK, message, data);
     }
 
-    public static BaseResponse createErrorResponse(String message, Object data){
+    public BaseResponse createErrorResponse(String message, Object data){
         return new BaseResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message, data);
     }
 }
