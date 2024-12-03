@@ -27,9 +27,32 @@ public class Account {
 
     private String username;
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ProfilePhoto profilePhoto;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "following", cascade = CascadeType.ALL)
     private Set<Follow> followers = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "follower", cascade = CascadeType.ALL)
     private Set<Follow> following = new HashSet<>();
+
+    public void addFollower(Follow follow) {
+        followers.add(follow);
+        follow.setFollowing(this);
+    }
+
+    public void addFollowing(Follow follow) {
+        following.add(follow);
+        follow.setFollower(this);
+    }
+
+    public void removeFollower(Follow follow) {
+        followers.remove(follow);
+        follow.setFollowing(null);
+    }
+
+    public void removeFollowing(Follow follow) {
+        following.remove(follow);
+        follow.setFollower(null);
+    }
 }
