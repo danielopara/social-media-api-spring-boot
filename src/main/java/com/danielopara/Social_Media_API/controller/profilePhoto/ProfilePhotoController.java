@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/v1/social/profilePhoto")
-@Tag(name = "Profile photo")
+@Tag(name = "Profile photo", description = "services for handling profile photo")
 public class ProfilePhotoController {
     private final ProfilePhotoService profilePhotoService;
     private final ResponseHandlers responseHandlers;
@@ -37,6 +37,13 @@ public class ProfilePhotoController {
         return responseHandlers.handleResponse(response);
     }
 
+    @PatchMapping(value = "/update-profilePhoto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BaseResponse> updateProfilePhoto(@AuthenticationPrincipal UserDetails currentUser,
+                                                           @RequestParam("file") MultipartFile file){
+        BaseResponse response = profilePhotoService.updateProfilePhoto(currentUser.getUsername(), file);
+        return responseHandlers.handleResponse(response);
+    }
+
     @GetMapping("/get-profilePhoto")
     public ResponseEntity<?> getProfilePhoto(@AuthenticationPrincipal UserDetails currentUser) {
         String username = currentUser.getUsername();
@@ -48,11 +55,30 @@ public class ProfilePhotoController {
 
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=\"" + resource.getFilename() + "\"")
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=\"" + resource.getFilename() + "\"")
                     .body(response.getData());
         } else{
             return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
                     .body(response.getMessage());
         }
     }
+
+    @GetMapping("/get-profilePhoto/{username}")
+    public ResponseEntity<?> getProfilePhotoByUsername(@PathVariable String username){
+        BaseResponse response = profilePhotoService.getProfilePhotoByUsername(username);
+
+        if (response.getStatusCode() == HttpServletResponse.SC_OK) {
+
+            Resource resource = (Resource) response.getData();
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=\"" + resource.getFilename() + "\"")
+                    .body(response.getData());
+        } else{
+            return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                    .body(response.getMessage());
+        }
+    }
+
 }
