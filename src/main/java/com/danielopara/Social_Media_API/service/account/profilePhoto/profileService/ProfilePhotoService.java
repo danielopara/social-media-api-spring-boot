@@ -73,6 +73,42 @@ public class ProfilePhotoService implements ProfilePhotoInterface {
         }
     }
 
+    @Override
+    public BaseResponse updateProfilePhoto(String email, MultipartFile image) {
+        try{
+            Account account = getAccountByEmail(email);
+
+            ProfilePhoto existingUser = getProfilePhotoAccount(account.getId());
+
+            String folder = System.getProperty("user.dir") + "/profile_images/";
+            String filePath = folder + account.getUsername() + ".jpg";
+
+            File directory = new File(folder);
+            if(!directory.exists()){
+                directory.mkdirs();
+            }
+
+            image.transferTo(new File(filePath));
+
+            existingUser.setFilePath(filePath);
+            existingUser.setFileName(account.getUsername() + " profile-photo");
+            existingUser.setFileSize(image.getSize());
+
+            profilePhotoRepository.save(existingUser);
+
+            return BaseResponse.createSuccessResponse("profile photo updated successfully", existingUser.getFileName());
+
+        } catch(Exception e){
+            return BaseResponse.createErrorResponse(INTERNAL_SERVER, e.getMessage());
+        }
+    }
+
+    @Cacheable("profilePhotos")
+    private ProfilePhoto getProfilePhotoAccount(Long id){
+        return profilePhotoRepository.findByAccountId(id)
+                .orElseThrow(()->new RuntimeException("profile photo not found"));
+    }
+
     private void checkProfilePhotoExists(Long id){
         profilePhotoRepository.findByAccountId(id)
                 .ifPresent(profilePhoto -> {throw new RuntimeException("user has profile photo");});
@@ -83,6 +119,7 @@ public class ProfilePhotoService implements ProfilePhotoInterface {
                 .orElseThrow(()-> new RuntimeException("Account not found"));
     }
 
+    @Cacheable("users")
     private Account getAccountByEmail(String email){
         return accountRepository.findByEmail(email)
                 .orElseThrow(()->new RuntimeException("Account not found"));

@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/v1/social/profilePhoto")
-@Tag(name = "Profile photo")
+@Tag(name = "Profile photo", description = "services for handling profile photo")
 public class ProfilePhotoController {
     private final ProfilePhotoService profilePhotoService;
     private final ResponseHandlers responseHandlers;
@@ -34,6 +34,13 @@ public class ProfilePhotoController {
                                                            @RequestParam("file")MultipartFile file){
         String email = currentUser.getUsername();
         BaseResponse response = profilePhotoService.uploadProfilePhoto(email, file);
+        return responseHandlers.handleResponse(response);
+    }
+
+    @PatchMapping(value = "/update-profilePhoto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BaseResponse> updateProfilePhoto(@AuthenticationPrincipal UserDetails currentUser,
+                                                           @RequestParam("file") MultipartFile file){
+        BaseResponse response = profilePhotoService.updateProfilePhoto(currentUser.getUsername(), file);
         return responseHandlers.handleResponse(response);
     }
 
@@ -55,4 +62,5 @@ public class ProfilePhotoController {
                     .body(response.getMessage());
         }
     }
+
 }
