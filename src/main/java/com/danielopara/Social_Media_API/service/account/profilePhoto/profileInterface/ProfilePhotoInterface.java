@@ -7,4 +7,5 @@ public interface ProfilePhotoInterface {
     BaseResponse uploadProfilePhoto(String email, MultipartFile file);
     BaseResponse getProfileImage(String email);
     BaseResponse updateProfilePhoto(String email, MultipartFile image);
+    BaseResponse getProfilePhotoByUsername(String username);
 }

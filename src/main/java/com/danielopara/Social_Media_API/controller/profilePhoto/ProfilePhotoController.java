@@ -63,4 +63,22 @@ public class ProfilePhotoController {
         }
     }
 
+    @GetMapping("/get-profilePhoto/{username}")
+    public ResponseEntity<?> getProfilePhotoByUsername(@PathVariable String username){
+        BaseResponse response = profilePhotoService.getProfilePhotoByUsername(username);
+
+        if (response.getStatusCode() == HttpServletResponse.SC_OK) {
+
+            Resource resource = (Resource) response.getData();
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=\"" + resource.getFilename() + "\"")
+                    .body(response.getData());
+        } else{
+            return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                    .body(response.getMessage());
+        }
+    }
+
 }

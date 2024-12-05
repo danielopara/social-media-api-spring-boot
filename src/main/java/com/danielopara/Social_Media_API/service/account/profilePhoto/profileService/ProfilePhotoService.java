@@ -103,6 +103,22 @@ public class ProfilePhotoService implements ProfilePhotoInterface {
         }
     }
 
+    @Override
+    public BaseResponse getProfilePhotoByUsername(String username) {
+        try{
+            Account account = getAccountByUsername(username);
+
+            ProfilePhoto profilePhoto = getProfilePhotoAccount(account.getId());
+
+            File file = new File(profilePhoto.getFilePath());
+            Resource resource = new FileSystemResource(file);
+
+            return BaseResponse.createSuccessResponse("success", resource);
+        }catch(Exception e){
+            return BaseResponse.createErrorResponse(INTERNAL_SERVER, e.getMessage());
+        }
+    }
+
     @Cacheable("profilePhotos")
     private ProfilePhoto getProfilePhotoAccount(Long id){
         return profilePhotoRepository.findByAccountId(id)
@@ -123,5 +139,11 @@ public class ProfilePhotoService implements ProfilePhotoInterface {
     private Account getAccountByEmail(String email){
         return accountRepository.findByEmail(email)
                 .orElseThrow(()->new RuntimeException("Account not found"));
+    }
+
+    @Cacheable("usersByUsername")
+    private Account getAccountByUsername(String username){
+        return accountRepository.findByUsername(username)
+                .orElseThrow(()-> new RuntimeException("Account not found"));
     }
 }
