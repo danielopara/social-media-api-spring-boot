@@ -48,7 +48,7 @@ public class ProfilePhotoController {
 
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=\"" + resource.getFilename() + "\"")
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=\"" + resource.getFilename() + "\"")
                     .body(response.getData());
         } else{
             return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
