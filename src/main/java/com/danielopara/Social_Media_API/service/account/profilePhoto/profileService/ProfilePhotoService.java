@@ -6,6 +6,7 @@ import com.danielopara.Social_Media_API.models.Account;
 import com.danielopara.Social_Media_API.models.ProfilePhoto;
 import com.danielopara.Social_Media_API.response.BaseResponse;
 import com.danielopara.Social_Media_API.service.account.profilePhoto.profileInterface.ProfilePhotoInterface;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,10 @@ public class ProfilePhotoService implements ProfilePhotoInterface {
     public BaseResponse uploadProfilePhoto(String email, MultipartFile image) {
         try{
             Account account = getAccountByEmail(email);
+
+            if(profilePhotoRepository.findByAccountId(account.getId()).isPresent()){
+                return new BaseResponse(HttpServletResponse.SC_FOUND, "profile photo exists", null);
+            }
 
             String folder = System.getProperty("user.dir") + "/profile_images/";
             String filePath = folder + account.getUsername() + ".jpg";
@@ -64,14 +70,8 @@ public class ProfilePhotoService implements ProfilePhotoInterface {
             ProfilePhoto photo = profilePhotoRepository.findByAccountId(userId)
                     .orElseThrow(() -> new RuntimeException("profile photo not found"));
 
-            Map<String, Object> userResources = new HashMap<>();
-
             File file = new File(photo.getFilePath());
             Resource resource = new FileSystemResource(file);
-
-            userResources.put("resource", resource);
-            userResources.put("fileName", photo.getFileName());
-
 
             return BaseResponse.createSuccessResponse("success", resource);
         }catch (Exception e){
